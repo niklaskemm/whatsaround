@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#008577</color>
+    <color name="colorPrimaryDark">#06051F</color>
+    <color name="colorAccent">#D81B60</color>
+    <color name="color_title">#6F8DB1</color>
+    <color name="color_popup">#D21A1A1A</color>
+    <color name="color_main">#7AD0FF</color>
+    <color name="color_btn">#B1B2B6</color>
+    <color name="color_btn_text">#2B2B2C</color>
+    <color name="color_tv_coordinates">#CE9B9B</color>
+</resources>

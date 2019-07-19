@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">What\'s Around</string>
+    <string name="tv_coordinates">Coordinates</string>
+    <string name="btn_start_updates">Start Updates</string>
+    <string name="btn_stop_updates">Stop Updates</string>
+    <string name="btn_show_popup">Show Popup</string>
+    <string name="btn_toggle_coordinates">Update Coordinates</string>
+    <string name="map_key" translatable="false">
+        AIzaSyArY6EEo2h47EeUoiSOlzyaflP8_sM67hY
+    </string>
+</resources>
