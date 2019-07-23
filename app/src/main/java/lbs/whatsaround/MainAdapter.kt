@@ -34,7 +34,6 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): Rec
         // Image
         var thumbnailImageView = holder?.view.iv_TitleImage
         Picasso.get().load(imageUrl).into(thumbnailImageView)
-
         holder.title = title
 
         // Text To Speech
