@@ -4,7 +4,9 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import lbs.whatsaround.TTS
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.list_item.view.*
 
@@ -32,11 +34,27 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): Rec
         // Image
         var thumbnailImageView = holder?.view.iv_TitleImage
         Picasso.get().load(imageUrl).into(thumbnailImageView)
+        holder.title = title
 
-        holder?.title = title
-        /*holder?.view.setOnClickListener {
-            SecondActivity().addMarker(wikiArticle.title, wikiArticle.lat.toDouble(), wikiArticle.lon.toDouble())
-        }*/
+        // Text To Speech
+        //val paragraph = paragraphList.get(position)
+        holder?.view.speakButton.setOnClickListener {
+            TTS(MainActivity.getContext(), wikiArticle.title,
+                "Speak")
+        }
+        // Stop Text To Speech
+        holder?.view.stopButton.setOnClickListener {
+            TTS(MainActivity.getContext(), "test", "Stop")
+        }
+
+        // Link to Wikipedia
+        holder?.view.wikiButton.setOnClickListener {
+            val intent = Intent(holder?.view.context, ThirdActivity::class.java)
+
+            intent.putExtra("wiki_title", title)
+
+            holder?.view.context.startActivity(intent)
+        }
     }
 }
 

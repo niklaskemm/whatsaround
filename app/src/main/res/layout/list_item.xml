@@ -16,32 +16,64 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp"
-            app:layout_constraintHorizontal_bias="0.929"/>
+            app:layout_constraintHorizontal_bias="0.0"/>
     <TextView
             android:text="POI TITEL"
             android:fontFamily="@font/gudea"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_poiTitle"
-            app:layout_constraintEnd_toStartOf="@+id/iv_TitleImage"
             android:layout_marginEnd="8dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="@+id/iv_TitleImage"
-            android:textStyle="bold"/>
+            android:textStyle="bold" android:layout_marginTop="8dp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_TitleImage" app:layout_constraintHorizontal_bias="0.017"
+            app:layout_constraintVertical_bias="0.0"/>
     <TextView
             android:text="DISTANCE"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv_poiDistance"
-            app:layout_constraintEnd_toStartOf="@+id/iv_TitleImage"
-            android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toBottomOf="@+id/tv_poiTitle" android:fontFamily="@font/gudea"
-            android:textSize="10sp"/>
+            android:textSize="10sp" android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/iv_TitleImage" android:layout_marginStart="8dp"
+            app:layout_constraintHorizontal_bias="0.016" app:layout_constraintVertical_bias="0.432"/>
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/speakButton"
+            android:drawableLeft="@drawable/ic_speak"
+            android:drawablePadding="8px"
+            android:layout_marginTop="44dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintEnd_toStartOf="@+id/stopButton"
+            app:layout_constraintStart_toEndOf="@+id/iv_TitleImage" android:layout_marginStart="50dp"
+            app:layout_constraintHorizontal_bias="0.745" android:layout_marginEnd="8dp"/>
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/stopButton"
+            android:drawableLeft="@drawable/ic_stop"
+            android:drawablePadding="8px"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="44dp" app:layout_constraintTop_toTopOf="parent"
+            android:scrollbarDefaultDelayBeforeFade="400" app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintEnd_toStartOf="@+id/wikiButton"/>
+    <Button
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/wikiButton" android:drawableLeft="@drawable/ic_launch"
+            android:drawablePadding="8px" android:layout_marginBottom="16dp"
+            app:layout_constraintBottom_toBottomOf="parent" android:layout_marginTop="44dp"
+            app:layout_constraintTop_toTopOf="parent" android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
