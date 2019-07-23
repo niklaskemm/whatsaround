@@ -33,20 +33,11 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): Rec
         var thumbnailImageView = holder?.view.iv_TitleImage
         Picasso.get().load(imageUrl).into(thumbnailImageView)
 
-        holder.title = title
+        holder?.title = title
+        /*holder?.view.setOnClickListener {
+            SecondActivity().addMarker(wikiArticle.title, wikiArticle.lat.toDouble(), wikiArticle.lon.toDouble())
+        }*/
     }
 }
 
-class CustomViewHolder(val view: View, var title: String? = null): RecyclerView.ViewHolder(view) {
-
-    init {
-        view.setOnClickListener {
-            val intent = Intent(view.context, ThirdActivity::class.java)
-
-            intent.putExtra("wiki_title", title)
-
-            view.context.startActivity(intent)
-        }
-    }
-
-}
+class CustomViewHolder(val view: View, var title: String? = null): RecyclerView.ViewHolder(view)

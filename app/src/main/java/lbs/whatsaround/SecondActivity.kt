@@ -2,22 +2,23 @@ package lbs.whatsaround
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.ColorSpace
 import android.location.Location
 import android.os.Bundle
-import android.widget.Toast
+import android.util.Log
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.tasks.RuntimeExecutionException
 import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_second.*
 import okhttp3.*
@@ -28,43 +29,36 @@ class SecondActivity : AppCompatActivity() {
     lateinit var mapFragment: SupportMapFragment
     lateinit var googleMap: GoogleMap
 
-    lateinit var locationRequest: LocationRequest
-    lateinit var locationCallback: LocationCallback
+    var fusedLocationClient: FusedLocationProviderClient? = null
 
-    private val MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1
+    val PERMISSION_ID = 42
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-
-        when (requestCode) {
-            MY_PERMISSIONS_REQUEST_FINE_LOCATION -> {
-                // If request is cancelled, the result arrays are empty.
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // permission was granted, yay!
-                    Toast.makeText(
-                        this@SecondActivity,
-                        "Accessing GPS Location!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-
-                } else {
-                    // permission denied, boo!
-                    Toast.makeText(
-                        this@SecondActivity,
-                        "Permission denied :(!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                return
-            }
-
-            // Add other 'when' lines to check for other
-            // permissions this app might request.
-            else -> {
-                // Ignore all other requests.
-            }
+    private fun checkPermission(vararg perm:String) : Boolean {
+        val havePermissions = perm.toList().all {
+            ContextCompat.checkSelfPermission(this,it) ==
+                    PackageManager.PERMISSION_GRANTED
         }
+        if (!havePermissions) {
+            if(perm.toList().any {
+                    ActivityCompat.
+                        shouldShowRequestPermissionRationale(this, it)}
+            ) {
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle("Permission")
+                    .setMessage("Permission needed!")
+                    .setPositiveButton("OK") { _,_ ->
+                        ActivityCompat.requestPermissions(
+                            this, perm, PERMISSION_ID)
+                    }
+                    .setNegativeButton("No", {_, _ -> })
+                    .create()
+                dialog.show()
+            } else {
+                ActivityCompat.requestPermissions(this, perm, PERMISSION_ID)
+            }
+            return false
+        }
+        return true
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,58 +67,88 @@ class SecondActivity : AppCompatActivity() {
 
         recView_ListPOIs.layoutManager = LinearLayoutManager(this)
 
-        fetchJSON()
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (ContextCompat.checkSelfPermission(this@SecondActivity,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED) {
-
-            // Permission is not granted
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this@SecondActivity,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-                // Show an explanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this@SecondActivity,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                    MY_PERMISSIONS_REQUEST_FINE_LOCATION)
-            }
-        } else {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener { location: Location? ->
-                    // Permission has already been granted
+        if (checkPermission(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            fusedLocationClient?.lastLocation?.
+                addOnSuccessListener(this
+                ) { location : Location? ->
+                    // Got last known location. In some rare
+                    // situations this can be null.
+                    if(location == null) {
+                        // TODO, handle it
+                    } else location.apply {
+                        // Handle location object
+                        fusedLocationClient?.lastLocation!!.addOnSuccessListener { location: Location? ->
+                            }
+                    }
                 }
         }
+
+        val reqSetting = LocationRequest.create().apply {
+            fastestInterval = 10000
+            interval = 10000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            smallestDisplacement = 1.0f
+        }
+
+        val REQUEST_CHECK_STATE = 12300 // any suitable ID
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(reqSetting)
+
+        val client = LocationServices.getSettingsClient(this)
+        client.checkLocationSettings(builder.build()).addOnCompleteListener { _ ->
+            try {
+            } catch (e: RuntimeExecutionException) {
+                if (e.cause is ResolvableApiException)
+                    (e.cause as ResolvableApiException).startResolutionForResult(
+                        this@SecondActivity,
+                        REQUEST_CHECK_STATE)
+            }
+        }
+
+        val locationUpdates = object : LocationCallback() {
+            override fun onLocationResult(lr: LocationResult) {
+                // do something with the new location...
+                fetchJSON(lr.lastLocation.latitude, lr.lastLocation.longitude)
+
+                var title = "Test"
+                var position = LatLng(53.512, 10.0048)
+
+                mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+                mapFragment.getMapAsync {
+                    googleMap = it
+                    googleMap.getUiSettings().setZoomControlsEnabled(true)
+                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lr.lastLocation.latitude,lr.lastLocation.longitude),15f))
+                    googleMap.addMarker(MarkerOptions().title(title).position(position))
+                }
+            }
+        }
+
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync {
             googleMap = it
             googleMap.isMyLocationEnabled = true
-
-            val location1 = LatLng(53.5403,10.0048)
-            googleMap.addMarker(MarkerOptions().position(location1).title("HafenCity Universität"))
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location1,15f))
-
-            val locationTest = LatLng(53.550408,9.992411)
-            googleMap.addMarker(MarkerOptions().position(locationTest).title("Test Location"))
-
+            googleMap.uiSettings.isZoomControlsEnabled = true
         }
 
-        fun startLocationUpdates() {
-            fusedLocationClient.requestLocationUpdates(locationRequest,
-                locationCallback, null /* Looper */)
-        }
+        fusedLocationClient?.requestLocationUpdates(reqSetting,
+            locationUpdates, null /* Looper */)
+
     }
 
-    fun fetchJSON() {
-        val lat = 53.5403
-        val lon = 10.0048
-        val radius = 10000
-        val limit = 30
+    fun addMarker(title: String, lat: Double, lon: Double) {
+        val position = LatLng(lat,lon)
+        Log.e("LOG", position.toString())
+        googleMap.clear()
+        Log.e("LOG", "cleared!")
+        googleMap.addMarker(MarkerOptions().title(title).position(position))
+    }
+
+    fun fetchJSON(lat: Double, lon: Double) {
+        val radius = 1000
+        val limit = 10
 
         val url = "https://de.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=$lat|$lon&gsradius=$radius&gslimit=$limit&format=json"
 
@@ -184,4 +208,6 @@ class SecondActivity : AppCompatActivity() {
 
     }
 }
+
+
 
