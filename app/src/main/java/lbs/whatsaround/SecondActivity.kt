@@ -166,10 +166,13 @@ class SecondActivity : AppCompatActivity() {
                 // Execute wikiImageScrape() function
                 val imageList = wikiImageScrape(homeFeed)
 
+                // Execute wikiParagraphScrape() function
+                val paragraphList = wikiParagraphScrape(homeFeed)
+
                 // Wenn nicht innerhalb runOnUiThread{} kann App nicht gestartet werden, wegen Netzwerk Error
                 runOnUiThread {
                     // MainAdapter ist für Inhalt UI zuständig. homeFeed = Api results, imageList = Liste mit Imagelinks zu den entsprechenden Articles
-                    recView_ListPOIs.adapter = MainAdapter(homeFeed, imageList)
+                    recView_ListPOIs.adapter = MainAdapter(homeFeed, imageList, paragraphList)
                 }
 
             }
@@ -206,6 +209,47 @@ class SecondActivity : AppCompatActivity() {
             return wikiTitleImages
         }
 
+    }
+
+    @Throws(Exception::class)
+    fun wikiParagraphScrape(homeFeed: HomeFeed): ArrayList<String> {
+
+        val wikiParagraphList = ArrayList<String>()
+        val geosearchElement = homeFeed.query.geosearch
+
+        for (i in geosearchElement) {
+            val url = "https://de.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + i.title
+            val request = Request.Builder().url(url).build()
+
+            val client = OkHttpClient()
+            client.newCall(request).enqueue(object: Callback {
+                override fun onResponse(call: Call?, response: Response?) {
+                    val body = response?.body()?.string()
+
+                    val gson = GsonBuilder().create()
+
+                    val paragraphJson = gson.fromJson(body, RawParagraph::class.java)
+
+                    // HIER WEITERMACHEN: Wie bekomm ich zu den Attributen? Nächster Wurzelknoten ist die pageid (z.B. 4366798 für Elphi)
+                    // Müsste irgendwie dynamisch in Models erzeugt werden
+                    // Wie Zahl als Variable nutzen??
+
+                    val paragraph = paragraphJson.query.pages.toString()
+
+                    Log.e("paragraph", paragraph)
+
+                    wikiParagraphList.add(paragraph)
+
+                }
+
+                override fun onFailure(call: Call?, e: IOException?) {
+                    println("Failed to execute response")
+                }
+
+            })
+            //return wikiParagraphList
+        }
+        return wikiParagraphList
     }
 }
 
