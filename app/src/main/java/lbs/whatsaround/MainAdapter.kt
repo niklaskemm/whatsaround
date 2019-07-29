@@ -10,7 +10,7 @@ import lbs.whatsaround.TTS
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.list_item.view.*
 
-class MainAdapter(val homefeed: HomeFeed, val imageList: ArrayList<String>, val paragraphList: ArrayList<String>): RecyclerView.Adapter<CustomViewHolder>()  {
+class MainAdapter(val homefeed: HomeFeed, val imageList: ArrayList<String>, val firstParaList: List<String>): RecyclerView.Adapter<CustomViewHolder>()  {
 
         override fun getItemCount(): Int {
         return homefeed.query.geosearch.count()
@@ -39,7 +39,7 @@ class MainAdapter(val homefeed: HomeFeed, val imageList: ArrayList<String>, val 
         // Text To Speech
         //val paragraph = paragraphList.get(position)
         holder?.view.speakButton.setOnClickListener {
-            TTS(MainActivity.getContext(), paragraphList.get(position),
+            TTS(MainActivity.getContext(), firstParaList.get(position),
                 "Speak")
         }
         // Stop Text To Speech

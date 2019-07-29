@@ -24,6 +24,10 @@ import kotlinx.android.synthetic.main.activity_second.*
 import okhttp3.*
 import org.jsoup.Jsoup
 import java.io.IOException
+import com.google.gson.JsonParser
+
+
+
 
 class SecondActivity : AppCompatActivity() {
     lateinit var mapFragment: SupportMapFragment
@@ -33,24 +37,25 @@ class SecondActivity : AppCompatActivity() {
 
     val PERMISSION_ID = 42
 
-    private fun checkPermission(vararg perm:String) : Boolean {
+    private fun checkPermission(vararg perm: String): Boolean {
         val havePermissions = perm.toList().all {
-            ContextCompat.checkSelfPermission(this,it) ==
+            ContextCompat.checkSelfPermission(this, it) ==
                     PackageManager.PERMISSION_GRANTED
         }
         if (!havePermissions) {
-            if(perm.toList().any {
-                    ActivityCompat.
-                        shouldShowRequestPermissionRationale(this, it)}
+            if (perm.toList().any {
+                    ActivityCompat.shouldShowRequestPermissionRationale(this, it)
+                }
             ) {
                 val dialog = AlertDialog.Builder(this)
                     .setTitle("Permission")
                     .setMessage("Permission needed!")
-                    .setPositiveButton("OK") { _,_ ->
+                    .setPositiveButton("OK") { _, _ ->
                         ActivityCompat.requestPermissions(
-                            this, perm, PERMISSION_ID)
+                            this, perm, PERMISSION_ID
+                        )
                     }
-                    .setNegativeButton("No", {_, _ -> })
+                    .setNegativeButton("No", { _, _ -> })
                     .create()
                 dialog.show()
             } else {
@@ -71,20 +76,22 @@ class SecondActivity : AppCompatActivity() {
 
         if (checkPermission(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION)) {
-            fusedLocationClient?.lastLocation?.
-                addOnSuccessListener(this
-                ) { location : Location? ->
-                    // Got last known location. In some rare
-                    // situations this can be null.
-                    if(location == null) {
-                        // TODO, handle it
-                    } else location.apply {
-                        // Handle location object
-                        fusedLocationClient?.lastLocation!!.addOnSuccessListener { location: Location? ->
-                            }
+                Manifest.permission.ACCESS_FINE_LOCATION
+            )
+        ) {
+            fusedLocationClient?.lastLocation?.addOnSuccessListener(
+                this
+            ) { location: Location? ->
+                // Got last known location. In some rare
+                // situations this can be null.
+                if (location == null) {
+                    // TODO, handle it
+                } else location.apply {
+                    // Handle location object
+                    fusedLocationClient?.lastLocation!!.addOnSuccessListener { location: Location? ->
                     }
                 }
+            }
         }
 
         val reqSetting = LocationRequest.create().apply {
@@ -104,7 +111,8 @@ class SecondActivity : AppCompatActivity() {
                 if (e.cause is ResolvableApiException)
                     (e.cause as ResolvableApiException).startResolutionForResult(
                         this@SecondActivity,
-                        REQUEST_CHECK_STATE)
+                        REQUEST_CHECK_STATE
+                    )
             }
         }
 
@@ -120,7 +128,14 @@ class SecondActivity : AppCompatActivity() {
                 mapFragment.getMapAsync {
                     googleMap = it
                     googleMap.getUiSettings().setZoomControlsEnabled(true)
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lr.lastLocation.latitude,lr.lastLocation.longitude),15f))
+                    googleMap.animateCamera(
+                        CameraUpdateFactory.newLatLngZoom(
+                            LatLng(
+                                lr.lastLocation.latitude,
+                                lr.lastLocation.longitude
+                            ), 15f
+                        )
+                    )
                     googleMap.addMarker(MarkerOptions().title(title).position(position))
                 }
             }
@@ -133,13 +148,15 @@ class SecondActivity : AppCompatActivity() {
             googleMap.uiSettings.isZoomControlsEnabled = true
         }
 
-        fusedLocationClient?.requestLocationUpdates(reqSetting,
-            locationUpdates, null /* Looper */)
+        fusedLocationClient?.requestLocationUpdates(
+            reqSetting,
+            locationUpdates, null /* Looper */
+        )
 
     }
 
     fun addMarker(title: String, lat: Double, lon: Double) {
-        val position = LatLng(lat,lon)
+        val position = LatLng(lat, lon)
         Log.e("LOG", position.toString())
         googleMap.clear()
         Log.e("LOG", "cleared!")
@@ -150,12 +167,13 @@ class SecondActivity : AppCompatActivity() {
         val radius = 1000
         val limit = 10
 
-        val url = "https://de.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=$lat|$lon&gsradius=$radius&gslimit=$limit&format=json"
+        val url =
+            "https://de.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=$lat|$lon&gsradius=$radius&gslimit=$limit&format=json"
 
         val request = Request.Builder().url(url).build()
 
         val client = OkHttpClient()
-        client.newCall(request).enqueue(object: Callback {
+        client.newCall(request).enqueue(object : Callback {
             override fun onResponse(call: Call?, response: Response?) {
                 val body = response?.body()?.string()
 
@@ -190,9 +208,7 @@ class SecondActivity : AppCompatActivity() {
         val wikiTitleImages = ArrayList<String>()
         val geosearchElement = homeFeed.query.geosearch
         try {
-            var count = 0
             for (i in geosearchElement) {
-                count += 1
                 val site = "https://de.wikipedia.org/wiki/" + i.title
                 val document = Jsoup.connect(site).get()
                 val image = document.select("a.image img").first()
@@ -203,7 +219,6 @@ class SecondActivity : AppCompatActivity() {
                     wikiTitleImages.add(url)
                 }
             }
-            println(wikiTitleImages)
             return wikiTitleImages
         } catch (ex: Exception) {
             return wikiTitleImages
@@ -212,44 +227,35 @@ class SecondActivity : AppCompatActivity() {
     }
 
     @Throws(Exception::class)
-    fun wikiParagraphScrape(homeFeed: HomeFeed): ArrayList<String> {
-
+    fun wikiParagraphScrape(homeFeed: HomeFeed): List<String> {
         val wikiParagraphList = ArrayList<String>()
         val geosearchElement = homeFeed.query.geosearch
+        try {
+            for (i in geosearchElement) {
+                val url =
+                    "https://de.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + i.title
+                val body = Jsoup.connect(url).ignoreContentType(true).execute().body()
+                val parser = JsonParser()
+                val element = parser.parse(body)
+                val obj = element.getAsJsonObject() //since you know it's a JsonObject
+                val query = obj.get("query")
+                val queryObject = query.asJsonObject
+                val pages = queryObject.get("pages")
+                val pagesObject = pages.asJsonObject
 
-        for (i in geosearchElement) {
-            val url = "https://de.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=" + i.title
-            val request = Request.Builder().url(url).build()
-
-            val client = OkHttpClient()
-            client.newCall(request).enqueue(object: Callback {
-                override fun onResponse(call: Call?, response: Response?) {
-                    val body = response?.body()?.string()
-
-                    val gson = GsonBuilder().create()
-
-                    val paragraphJson = gson.fromJson(body, RawParagraph::class.java)
-
-                    // HIER WEITERMACHEN: Wie bekomm ich zu den Attributen? Nächster Wurzelknoten ist die pageid (z.B. 4366798 für Elphi)
-                    // Müsste irgendwie dynamisch in Models erzeugt werden
-                    // Wie Zahl als Variable nutzen??
-
-                    val paragraph = paragraphJson.query.pages.toString()
-
-                    Log.e("paragraph", paragraph)
-
-                    wikiParagraphList.add(paragraph)
-
+                val entries = pagesObject.entrySet()//will return members of your object
+                for (entry in entries) {
+                    val pageid = entry.value
+                    val pageidObject = pageid.asJsonObject
+                    val title = pageidObject.get("title").toString()
+                    val extract = pageidObject.get("extract").toString()
+                    wikiParagraphList.add(extract)
                 }
-
-                override fun onFailure(call: Call?, e: IOException?) {
-                    println("Failed to execute response")
-                }
-
-            })
-            //return wikiParagraphList
+            }
+            return wikiParagraphList
+        } catch (ex: Exception) {
+            return wikiParagraphList
         }
-        return wikiParagraphList
     }
 }
 
