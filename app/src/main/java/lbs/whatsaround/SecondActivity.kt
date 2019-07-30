@@ -88,10 +88,11 @@ class SecondActivity : AppCompatActivity() {
         }
 
         val reqSetting = LocationRequest.create().apply {
-            fastestInterval = 10000
-            interval = 10000
+            fastestInterval = intent.getStringExtra("interval").toLong() //ms
+            interval = intent.getStringExtra("interval").toLong() //ms
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            smallestDisplacement = 1.0f
+            smallestDisplacement = intent.getStringExtra("smallestDisp").toFloat() //m
+            Log.e("TEST", smallestDisplacement.toString())
         }
 
         val REQUEST_CHECK_STATE = 12300 // any suitable ID
@@ -111,7 +112,7 @@ class SecondActivity : AppCompatActivity() {
         val locationUpdates = object : LocationCallback() {
             override fun onLocationResult(lr: LocationResult) {
                 // do something with the new location...
-                fetchJSON(lr.lastLocation.latitude, lr.lastLocation.longitude)
+                fetchJSON(lr.lastLocation.latitude, lr.lastLocation.longitude, intent.getStringExtra("radius").toInt(), intent.getStringExtra("limit").toInt())
 
                 var title = "Test"
                 var position = LatLng(53.512, 10.0048)
@@ -146,9 +147,9 @@ class SecondActivity : AppCompatActivity() {
         googleMap.addMarker(MarkerOptions().title(title).position(position))
     }
 
-    fun fetchJSON(lat: Double, lon: Double) {
-        val radius = 1000
-        val limit = 10
+    fun fetchJSON(lat: Double, lon: Double, radius: Int, limit: Int) {
+        val radius = radius
+        val limit = limit
 
         val url = "https://de.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=$lat|$lon&gsradius=$radius&gslimit=$limit&format=json"
 

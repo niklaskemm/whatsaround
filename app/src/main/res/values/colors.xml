@@ -9,4 +9,5 @@
     <color name="color_btn">#B1B2B6</color>
     <color name="color_btn_text">#2B2B2C</color>
     <color name="color_tv_coordinates">#CE9B9B</color>
+    <color name="color_white">#FFF</color>
 </resources>
