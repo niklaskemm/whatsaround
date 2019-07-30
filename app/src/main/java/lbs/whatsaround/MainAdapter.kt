@@ -1,16 +1,25 @@
 package lbs.whatsaround
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.transition.Fade
+import android.transition.TransitionManager
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.recyclerview.widget.RecyclerView
 import lbs.whatsaround.TTS
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.list_item.view.*
 
-class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): RecyclerView.Adapter<CustomViewHolder>()  {
+class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>, val firstParaList: List<String>): RecyclerView.Adapter<CustomViewHolder>()  {
 
         override fun getItemCount(): Int {
         return homefeed.query.geosearch.count()
@@ -39,7 +48,7 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): Rec
         // Text To Speech
         //val paragraph = paragraphList.get(position)
         holder?.view.speakButton.setOnClickListener {
-            TTS(MainActivity.getContext(), wikiArticle.title,
+            TTS(MainActivity.getContext(), firstParaList.get(position),
                 "Speak")
         }
         // Stop Text To Speech
@@ -55,6 +64,12 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>): Rec
 
             holder?.view.context.startActivity(intent)
         }
+
+        /*
+        if (position == 0) {
+            SecondActivity().attractionPopup(wikiArticle.dist)
+        }
+        */
     }
 }
 
