@@ -10,4 +10,5 @@
     <color name="color_btn_text">#2B2B2C</color>
     <color name="color_tv_coordinates">#CE9B9B</color>
     <color name="color_white">#FFF</color>
+    <color name="popup_bg">#D21A1A1A</color>
 </resources>

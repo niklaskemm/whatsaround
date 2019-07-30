@@ -8,9 +8,7 @@ import android.transition.Fade
 import android.transition.TransitionManager
 import android.view.Gravity
 import android.view.LayoutInflater
-import android.widget.LinearLayout
-import android.widget.PopupWindow
-import android.widget.SeekBar
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,6 +19,20 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val popupText_radius = "The radius defines the distance around your current location from which the Wikipedia articles will be fetched. The greater the radius, the longer the search will take."
+        val popupTitle_radius = "Radius"
+
+        val popupText_limit = "Dummy Text"
+        val popupTitle_limit = "Max no. of results"
+
+        val popupText_interval = "The update interval defines the amount of reloading the results based on your change in location: \n" +
+                "low: \n" +
+                "normal: \n" +
+                "high: \n"
+        val popupTitle_interval = "Update Interval"
+
+        val y_offset = 250
 
         sb_radius.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -127,6 +139,11 @@ class MainActivity : AppCompatActivity() {
                 ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
             )
 
+            val btnClose = view.findViewById<ImageView>(R.id.iv_popupClose)
+
+            val popupText = view.findViewById<TextView>(R.id.tv_popup)
+            val popupTitle = view.findViewById<TextView>(R.id.tv_popupTitle)
+
             // If API level 23 or higher then execute the code
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 // Create a new slide animation for popup window enter transition
@@ -140,16 +157,115 @@ class MainActivity : AppCompatActivity() {
                 popupWindow.exitTransition = slideOut
             }
 
-            //iv_popupClose.setOnClickListener{
-            //    popupWindow.dismiss()
-            //}
+            btnClose.setOnClickListener{
+                popupWindow.dismiss()
+            }
+
+            popupText.text = popupText_radius
+            popupTitle.text = popupTitle_radius
 
             TransitionManager.beginDelayedTransition(activity_main)
             popupWindow.showAtLocation(
                 activity_main, // Location to display popup window
                 Gravity.BOTTOM, // Exact position of layout to display popup
                 0, // X offset
-                500 // Y offset
+                y_offset // Y offset
+            )
+        }
+
+        iv_limitInfo.setOnClickListener {
+            // Initialize a new layout inflater instance
+            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+            // Inflate a custom view using layout inflater
+            val view = inflater.inflate(R.layout.popup, null)
+
+            // Initialize a new instance of popup window
+            val popupWindow = PopupWindow(
+                view, // Custom view to show in popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
+            )
+
+            val btnClose = view.findViewById<ImageView>(R.id.iv_popupClose)
+
+            val popupText = view.findViewById<TextView>(R.id.tv_popup)
+            val popupTitle = view.findViewById<TextView>(R.id.tv_popupTitle)
+
+            // If API level 23 or higher then execute the code
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Create a new slide animation for popup window enter transition
+                val slideIn = Fade()
+                slideIn.duration = 500 //ms
+                popupWindow.enterTransition = slideIn
+
+                // Slide animation for popup window exit transition
+                val slideOut = Fade()
+                //slideOut.slideEdge = Gravity.BOTTOM
+                popupWindow.exitTransition = slideOut
+            }
+
+            btnClose.setOnClickListener{
+                popupWindow.dismiss()
+            }
+
+            popupText.text = popupText_limit
+            popupTitle.text = popupTitle_limit
+
+            TransitionManager.beginDelayedTransition(activity_main)
+            popupWindow.showAtLocation(
+                activity_main, // Location to display popup window
+                Gravity.BOTTOM, // Exact position of layout to display popup
+                0, // X offset
+                y_offset // Y offset
+            )
+        }
+
+        iv_updateInfo.setOnClickListener {
+            // Initialize a new layout inflater instance
+            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+            // Inflate a custom view using layout inflater
+            val view = inflater.inflate(R.layout.popup, null)
+
+            // Initialize a new instance of popup window
+            val popupWindow = PopupWindow(
+                view, // Custom view to show in popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
+            )
+
+            val btnClose = view.findViewById<ImageView>(R.id.iv_popupClose)
+
+            val popupText = view.findViewById<TextView>(R.id.tv_popup)
+            val popupTitle = view.findViewById<TextView>(R.id.tv_popupTitle)
+
+            // If API level 23 or higher then execute the code
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Create a new slide animation for popup window enter transition
+                val slideIn = Fade()
+                slideIn.duration = 500 //ms
+                popupWindow.enterTransition = slideIn
+
+                // Slide animation for popup window exit transition
+                val slideOut = Fade()
+                //slideOut.slideEdge = Gravity.BOTTOM
+                popupWindow.exitTransition = slideOut
+            }
+
+            btnClose.setOnClickListener{
+                popupWindow.dismiss()
+            }
+
+            popupText.text = popupText_interval
+            popupTitle.text = popupTitle_interval
+
+            TransitionManager.beginDelayedTransition(activity_main)
+            popupWindow.showAtLocation(
+                activity_main, // Location to display popup window
+                Gravity.BOTTOM, // Exact position of layout to display popup
+                0, // X offset
+                y_offset // Y offset
             )
         }
 
