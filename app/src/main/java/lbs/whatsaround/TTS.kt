@@ -56,6 +56,4 @@ class TTS(private val activity: Context?,
             Toast.makeText(activity, "Not speaking", Toast.LENGTH_SHORT).show()
         }
     }
-
-
 }
