@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.transition.Fade
 import android.transition.TransitionManager
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -63,6 +64,11 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>, val 
             intent.putExtra("wiki_title", title)
 
             holder?.view.context.startActivity(intent)
+        }
+
+        holder?.view.iv_TitleImage.setOnClickListener{
+            Log.e("Test", "Click!")
+            //SecondActivity().zoomToPosition(wikiArticle.lat.toDouble(), wikiArticle.lon.toDouble())
         }
 
         /*

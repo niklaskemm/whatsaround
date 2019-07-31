@@ -34,8 +34,7 @@ import okhttp3.*
 import org.jsoup.Jsoup
 import java.io.IOException
 import com.google.gson.JsonParser
-
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class SecondActivity : AppCompatActivity() {
@@ -104,10 +103,10 @@ class SecondActivity : AppCompatActivity() {
         }
 
         val reqSetting = LocationRequest.create().apply {
-            fastestInterval = 10000
-            interval = 10000
+            fastestInterval = intent.getStringExtra("interval").toLong()
+            interval = intent.getStringExtra("interval").toLong()
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            smallestDisplacement = 1.0f
+            smallestDisplacement = intent.getStringExtra("smallestDisp").toFloat()
         }
 
         val REQUEST_CHECK_STATE = 12300 // any suitable ID
@@ -130,9 +129,6 @@ class SecondActivity : AppCompatActivity() {
                 // do something with the new location...
                 fetchJSON(lr.lastLocation.latitude, lr.lastLocation.longitude)
 
-                var title = "Test"
-                var position = LatLng(53.512, 10.0048)
-
                 mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
                 mapFragment.getMapAsync {
                     googleMap = it
@@ -145,7 +141,6 @@ class SecondActivity : AppCompatActivity() {
                             ), 15f
                         )
                     )
-                    googleMap.addMarker(MarkerOptions().title(title).position(position))
                 }
             }
         }
@@ -162,20 +157,63 @@ class SecondActivity : AppCompatActivity() {
             locationUpdates, null /* Looper */
         )
 
+        btn_popup.setOnClickListener {
+            // Initialize a new layout inflater instance
+            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+
+            // Inflate a custom view using layout inflater
+            val view = inflater.inflate(R.layout.attraction_popup, null)
+
+            // Initialize a new instance of popup window
+            val popupWindow = PopupWindow(
+                view, // Custom view to show in popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
+                ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
+            )
+
+            val btnClose = view.findViewById<ImageView>(R.id.iv_attrPopUpClose)
+
+            // If API level 23 or higher then execute the code
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Create a new slide animation for popup window enter transition
+                val slideIn = Fade()
+                slideIn.duration = 500 //ms
+                popupWindow.enterTransition = slideIn
+
+                // Slide animation for popup window exit transition
+                val slideOut = Fade()
+                //slideOut.slideEdge = Gravity.BOTTOM
+                popupWindow.exitTransition = slideOut
+            }
+
+            btnClose.setOnClickListener {
+                popupWindow.dismiss()
+            }
+
+            TransitionManager.beginDelayedTransition(activity_second)
+            popupWindow.showAtLocation(
+                activity_second, // Location to display popup window
+                Gravity.BOTTOM, // Exact position of layout to display popup
+                0, // X offset
+                500 // Y offset
+            )
+        }
     }
 
+    fun zoomToPosition(lat:Double, lon: Double){
+        googleMap.animateCamera(
+            CameraUpdateFactory.newLatLngZoom(
+                LatLng(lat,lon), 15f))
+    }
 
     fun addMarker(title: String, lat: Double, lon: Double) {
         val position = LatLng(lat, lon)
-        Log.e("LOG", position.toString())
-        googleMap.clear()
-        Log.e("LOG", "cleared!")
         googleMap.addMarker(MarkerOptions().title(title).position(position))
     }
 
     fun fetchJSON(lat: Double, lon: Double) {
-        val radius = 1000
-        val limit = 10
+        val radius = intent.getStringExtra("radius")
+        val limit = intent.getStringExtra("limit")
 
         val url =
             "https://de.wikipedia.org/w/api.php?origin=*&action=query&list=geosearch&gscoord=$lat|$lon&gsradius=$radius&gslimit=$limit&format=json"
@@ -203,6 +241,12 @@ class SecondActivity : AppCompatActivity() {
                     recView_ListPOIs.adapter = MainAdapter(homeFeed, imageList, paragraphList)
                 }
 
+                val markerSetup = listAddMarker(homeFeed)
+                runOnUiThread{
+                    for (i in 0..(markerSetup.size/3-1)) { //
+                        addMarker(markerSetup.get(i*3+0), markerSetup.get(i*3+1).toDouble(), markerSetup.get(i*3+2).toDouble())
+                    }
+                }
             }
 
             override fun onFailure(call: Call?, e: IOException?) {
@@ -210,6 +254,8 @@ class SecondActivity : AppCompatActivity() {
             }
 
         })
+
+
 
     }
 
@@ -268,57 +314,16 @@ class SecondActivity : AppCompatActivity() {
         }
     }
 
-    fun attractionPopup (distance: Float){
-        if (distance <= 50) {
-
-            // Initialize a new layout inflater instance
-            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-            // Inflate a custom view using layout inflater
-            val view = inflater.inflate(R.layout.attraction_popup, null)
-
-            // Initialize a new instance of popup window
-            val popupWindow = PopupWindow(
-                view, // Custom view to show in popup window
-                ConstraintLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-                ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
-            )
-
-            val btnClose = view.findViewById<ImageView>(R.id.iv_attrPopUpClose)
-
-            // If API level 23 or higher then execute the code
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // Create a new slide animation for popup window enter transition
-                val slideIn = Fade()
-                slideIn.duration = 500 //ms
-                popupWindow.enterTransition = slideIn
-
-                // Slide animation for popup window exit transition
-                val slideOut = Fade()
-                //slideOut.slideEdge = Gravity.BOTTOM
-                popupWindow.exitTransition = slideOut
-            }
-
-            btnClose.setOnClickListener{
-                popupWindow.dismiss()
-            }
-
-            TransitionManager.beginDelayedTransition(activity_second)
-            popupWindow.showAtLocation(
-                activity_second, // Location to display popup window
-                Gravity.BOTTOM, // Exact position of layout to display popup
-                0, // X offset
-                500 // Y offset
-            )
+    fun listAddMarker(homeFeed: HomeFeed): ArrayList<String> {
+        val geosearchElement = homeFeed.query.geosearch
+        val markerSetup = ArrayList<String>()
+        for (i in geosearchElement) {
+            markerSetup.add(i.title)
+            markerSetup.add(i.lat.toString())
+            markerSetup.add(i.lon.toString())
         }
+        return markerSetup
     }
-
-
-    override fun onResume() {
-        super.onResume()
-        attractionPopup(49.toFloat())
-    }
-
 }
 
 

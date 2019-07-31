@@ -10,6 +10,7 @@ class Query(val geosearch: List<GeoSearch>)
 class GeoSearch(val pageid: Int, val ns: Int, val title: String, val lat: Float,
                 val lon: Float, val dist: Float, val primary: String)
 
+
 // Komplettes Paragraph Json von API
 class RawParagraphJson(val query: QueryParagraph)
 

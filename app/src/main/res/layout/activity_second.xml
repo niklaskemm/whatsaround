@@ -27,5 +27,10 @@
             android:layout_marginEnd="8dp"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="8dp" android:id="@+id/recView_ListPOIs"/>
+    <Button
+            android:text="Button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" tools:layout_editor_absoluteY="255dp"
+            tools:layout_editor_absoluteX="0dp" android:id="@+id/btn_popup"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
