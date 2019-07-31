@@ -52,10 +52,6 @@ class MainAdapter(val homefeed: HomeFeed, val imagelist: ArrayList<String>, val 
             TTS(MainActivity.getContext(), firstParaList.get(position),
                 "Speak")
         }
-        // Stop Text To Speech
-        holder?.view.stopButton.setOnClickListener {
-            TTS(MainActivity.getContext(), "test", "Stop")
-        }
 
         // Link to Wikipedia
         holder?.view.wikiButton.setOnClickListener {

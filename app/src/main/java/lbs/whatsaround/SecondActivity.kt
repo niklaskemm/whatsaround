@@ -156,48 +156,6 @@ class SecondActivity : AppCompatActivity() {
             reqSetting,
             locationUpdates, null /* Looper */
         )
-
-        btn_popup.setOnClickListener {
-            // Initialize a new layout inflater instance
-            val inflater: LayoutInflater = getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-            // Inflate a custom view using layout inflater
-            val view = inflater.inflate(R.layout.attraction_popup, null)
-
-            // Initialize a new instance of popup window
-            val popupWindow = PopupWindow(
-                view, // Custom view to show in popup window
-                ConstraintLayout.LayoutParams.WRAP_CONTENT, // Width of popup window
-                ConstraintLayout.LayoutParams.WRAP_CONTENT // Window height
-            )
-
-            val btnClose = view.findViewById<ImageView>(R.id.iv_attrPopUpClose)
-
-            // If API level 23 or higher then execute the code
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                // Create a new slide animation for popup window enter transition
-                val slideIn = Fade()
-                slideIn.duration = 500 //ms
-                popupWindow.enterTransition = slideIn
-
-                // Slide animation for popup window exit transition
-                val slideOut = Fade()
-                //slideOut.slideEdge = Gravity.BOTTOM
-                popupWindow.exitTransition = slideOut
-            }
-
-            btnClose.setOnClickListener {
-                popupWindow.dismiss()
-            }
-
-            TransitionManager.beginDelayedTransition(activity_second)
-            popupWindow.showAtLocation(
-                activity_second, // Location to display popup window
-                Gravity.BOTTOM, // Exact position of layout to display popup
-                0, // X offset
-                500 // Y offset
-            )
-        }
     }
 
     fun zoomToPosition(lat:Double, lon: Double){

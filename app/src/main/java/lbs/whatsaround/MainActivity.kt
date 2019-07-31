@@ -23,13 +23,14 @@ class MainActivity : AppCompatActivity() {
         val popupText_radius = "The radius defines the distance around your current location from which the Wikipedia articles will be fetched. The greater the radius, the longer the search will take."
         val popupTitle_radius = "Radius"
 
-        val popupText_limit = "Dummy Text"
+        val popupText_limit = "You can define the maximum number of results here. Remember that the actual number of results also depends on the radius."
         val popupTitle_limit = "Max no. of results"
 
-        val popupText_interval = "The update interval defines the amount of reloading the results based on your change in location: \n" +
-                "low: \n" +
-                "normal: \n" +
-                "high: \n"
+        val popupText_interval = "The update interval defines the amount of reloading the results based on your change in location: \n\n" +
+                "low: Update interval 5 minutes, smallest displacement 100m\n" +
+                "normal: Update interval every minute, smallest displacement 50m\n" +
+                "high: Update interval 10 seconds, smallest displacement 10m\n\n" +
+                "The lower the update interval the lower the data usage."
         val popupTitle_interval = "Update Interval"
 
         val y_offset = 250
